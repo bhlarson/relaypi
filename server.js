@@ -5,7 +5,7 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var SolarCalc = require('solar-calc');
-var schedule = require('node-schedule');
+var CronJob = require('cron').CronJob;
 var mysql = require('mysql');
 
 console.log("External Dependencies Found");
@@ -30,13 +30,16 @@ app.get('/', function (req, res) {
 
 
 http.listen(port, function () {
+    console.log("Listening on port "+ port);
 });
 
 var solar = new SolarCalc(new Date(), 45.5, -122.8);
-console.log("sunrise Today: ", solar.sunrise.toString());
+console.log("Sunrise Today: ", solar.sunrise.toString());
+console.log("Sunset Today: ", solar.sunset.toString());
 
-var solar = new SolarCalc(new Date(), 45.5, -122.8);
-console.log("sunrise ", solar.sunrise);
+new CronJob('* * * * * *', function() {
+    console.log('You will see this message every second');
+  }, null, true);
 
 module.exports = app;
-console.log("Creation  successful")
+console.log("Created RelayPi server")
