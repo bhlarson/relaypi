@@ -7,8 +7,13 @@ var http = require('http').Server(app);
 var SolarCalc = require('solar-calc');
 var schedule = require('node-schedule');
 var mysql = require('mysql');
+const Gpio = require('onoff').Gpio;
 
 console.log("External Dependencies Found");
+
+const rly1 = new Gpio(26, 'out');
+const rly2 = new Gpio(20, 'out');
+const rly3 = new Gpio(21, 'out');
 
 var pool = mysql.createPool({
     connectionLimit: 10,
@@ -39,7 +44,13 @@ console.log("Sunset Today: ", solar.sunset.toString());
 
 var j = schedule.scheduleJob('*/5 * * * * *', function(){
     console.log(new Date() + ' Repeat');
-  });
+  }
+);
+
+rly1.read()
+    .then(value => rly1.write(value ^ 1))
+    //.then(_ => setTimeout(blinkLed, 200))
+    .catch(err => console.log(err));
 
 module.exports = app;
 console.log("Created RelayPi server")
