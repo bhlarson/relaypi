@@ -14,6 +14,9 @@ console.log("External Dependencies Found");
 const rly1 = new Gpio(26, 'out');
 const rly2 = new Gpio(20, 'out');
 const rly3 = new Gpio(21, 'out');
+rly1.writeSync(0);
+rly2.writeSync(0);
+rly3.writeSync(0);
 
 var pool = mysql.createPool({
     connectionLimit: 10,
@@ -44,13 +47,30 @@ console.log("Sunset Today: ", solar.sunset.toString());
 
 var j = schedule.scheduleJob('*/5 * * * * *', function(){
     console.log(new Date() + ' Repeat');
+
+    rly1.read()
+        .then(value => rly1.write(value ^ 1))
+        .catch(err => console.log(err));   
   }
 );
 
-rly1.read()
-    .then(value => rly1.write(value ^ 1))
-    //.then(_ => setTimeout(blinkLed, 200))
-    .catch(err => console.log(err));
+var k = schedule.scheduleJob('*/10 * * * * *', function(){
+    console.log(new Date() + ' Repeat');
+
+    rly2.read()
+        .then(value => rly2.write(value ^ 1))
+        .catch(err => console.log(err));   
+  }
+);
+
+var l = schedule.scheduleJob('*/20 * * * * *', function(){
+    console.log(new Date() + ' Repeat');
+
+    rly3.read()
+        .then(value => rly3.write(value ^ 1))
+        .catch(err => console.log(err));   
+  }
+);
 
 module.exports = app;
 console.log("Created RelayPi server")
