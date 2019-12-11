@@ -7,16 +7,45 @@ var http = require('http').Server(app);
 var SunCalc = require('suncalc2');
 var schedule = require('node-schedule');
 var mysql = require('mysql');
+var cronparser = require('cron-parser');
 //const Gpio = require('onoff').Gpio;
 
 var schedule = [
-    {timer:'chron', config:{expression:'*45 5 * * 1-5'}, conditions:[], action:()=>{rly1.writeSync(1)}},
-    {timer:'chron', config:{expression:'* * 7 * * 0,6'}, conditions:[], action:()=>{rly1.writeSync(1)}},
-    {timer:'celestial', config:{when:'sunrise', offset:50}, conditions:[], action:()=>{rly1.writeSync(0)}},
-    {timer:'celestial', config:{when:'sunset', offset:-30}, conditions:[], action:()=>{rly1.writeSync(1)}},
-    {timer:'chron', config:{expression:'* 30 22 * * 1-5'}, conditions:[], action:()=>{rly1.writeSync(0)}},
-    {timer:'chron', config:{expression:'* * 23 * * 0,6'}, conditions:[], action:()=>{rly1.writeSync(0)}},
-  ];
+  { timer: 'time', config: { timestamp: 1577099015 }, conditions: [], action: () => { rly1.writeSync(1) } },
+  { timer: 'chron', config: { expression: '*45 5 * * 1-5' }, conditions: [{ type: 'weather', condition: (forcast) => { return forcast.toLowerCase().indexOf("overcast") === -1 } }], action: () => { rly1.writeSync(1) } },
+  { timer: 'chron', config: { expression: '* * 7 * * 0,6' }, conditions: [], action: () => { rly1.writeSync(1) } },
+  { timer: 'celestial', config: { when: 'sunrise', offset: 50 }, conditions: [], action: () => { rly1.writeSync(0) } },
+  { timer: 'celestial', config: { when: 'sunset', offset: -30 }, conditions: [], action: () => { rly1.writeSync(1) } },
+  { timer: 'chron', config: { expression: '* 30 22 * * 1-5' }, conditions: [], action: () => { rly1.writeSync(0) } },
+  { timer: 'chron', config: { expression: '* * 23 * * 0,6' }, conditions: [], action: () => { rly1.writeSync(0) } },
+];
+
+function NextEvent(timestamp, schedule){
+  var dT = [];
+  schedule.forEach(element => {
+    var scheduledTime = 0;
+    switch(element.timer){
+      case 'time':
+        if(element.config.timestamp){
+          scheduledTime = element.config.timestamp;
+        }
+        break;
+      case 'chron':
+          var options = {
+            currentDate: new Date(timestamp),
+            iterator: true
+          };
+        var interval = parser.parseExpression(element.config.expression, options);
+        scheduledTime = interval.NextEvent();
+        break;
+      case 'celestial'
+        break;
+    }
+    dT.push(scheduledTime-time);
+  });
+
+
+}
 
 console.log("External Dependencies Found");
 
