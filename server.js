@@ -9,7 +9,14 @@ var schedule = require('node-schedule');
 var mysql = require('mysql');
 //const Gpio = require('onoff').Gpio;
 
-var schedule = [];
+var schedule = [
+    {timer:'chron', config:{expression:'*45 5 * * 1-5'}, conditions:[], action:()=>{rly1.writeSync(1)}},
+    {timer:'chron', config:{expression:'* * 7 * * 0,6'}, conditions:[], action:()=>{rly1.writeSync(1)}},
+    {timer:'celestial', config:{when:'sunrise', offset:50}, conditions:[], action:()=>{rly1.writeSync(0)}},
+    {timer:'celestial', config:{when:'sunset', offset:-30}, conditions:[], action:()=>{rly1.writeSync(1)}},
+    {timer:'chron', config:{expression:'* 30 22 * * 1-5'}, conditions:[], action:()=>{rly1.writeSync(0)}},
+    {timer:'chron', config:{expression:'* * 23 * * 0,6'}, conditions:[], action:()=>{rly1.writeSync(0)}},
+  ];
 
 console.log("External Dependencies Found");
 
