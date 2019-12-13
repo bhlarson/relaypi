@@ -10,6 +10,8 @@ var mysql = require('mysql');
 var cronparser = require('cron-parser');
 //const Gpio = require('onoff').Gpio;
 
+rly1.writeSync(1)
+
 var schedule = [
   { timer: 'time', config: { timestamp: 1577099015 }, conditions: [], action: () => { rly1.writeSync(1) } },
   { timer: 'chron', config: { expression: '*45 5 * * 1-5' }, conditions: [{ type: 'weather', condition: (forcast) => { return forcast.toLowerCase().indexOf("overcast") === -1 } }], action: () => { rly1.writeSync(1) } },
@@ -38,14 +40,14 @@ function NextEvent(timestamp, schedule){
         var interval = parser.parseExpression(element.config.expression, options);
         scheduledTime = interval.NextEvent();
         break;
-      case 'celestial'
+      case 'celestial':
         break;
     }
     dT.push(scheduledTime-time);
   });
-
-
 }
+
+NextEvent(time.time(), schedule);
 
 console.log("External Dependencies Found");
 
