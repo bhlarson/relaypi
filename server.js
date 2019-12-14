@@ -5,26 +5,30 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var SunCalc = require('suncalc2');
-var schedule = require('node-schedule');
+//var schedule = require('node-schedule');
 var mysql = require('mysql');
 var cronparser = require('cron-parser');
-const Gpio = require('onoff').Gpio;
+//const Gpio = require('onoff').Gpio;
 
+
+/*
 const rly1 = new Gpio(26, 'out');
 const rly2 = new Gpio(20, 'out');
 const rly3 = new Gpio(21, 'out');
 
 rly1.writeSync(1);
 console.log('rly1=1');
+*/
 
 var schedule = [
-  { timer: 'time', config: { timestamp: 1577099015 }, conditions: [], action: () => { rly1.writeSync(1) } },
-  { timer: 'chron', config: { expression: '*45 5 * * 1-5' }, conditions: [{ type: 'weather', condition: (forcast) => { return forcast.toLowerCase().indexOf("overcast") === -1 } }], action: () => { rly1.writeSync(1) } },
-  { timer: 'chron', config: { expression: '* * 7 * * 0,6' }, conditions: [], action: () => { rly1.writeSync(1) } },
-  { timer: 'celestial', config: { when: 'sunrise', offset: 50 }, conditions: [], action: () => { rly1.writeSync(0) } },
-  { timer: 'celestial', config: { when: 'sunset', offset: -30 }, conditions: [], action: () => { rly1.writeSync(1) } },
-  { timer: 'chron', config: { expression: '* 30 22 * * 1-5' }, conditions: [], action: () => { rly1.writeSync(0) } },
-  { timer: 'chron', config: { expression: '* * 23 * * 0,6' }, conditions: [], action: () => { rly1.writeSync(0) } },
+  { timer: 'date', config: { date: 'December 14, 2019 6:00:00'}, conditions: [], action: () => { console.log(rly1.writeSync(1)) } },
+  { timer: 'chron', config: { expression: '* * * * *' }, conditions: [{ type: 'weather', condition: (forcast) => { return forcast.toLowerCase().indexOf("overcast") === -1 } }], action: () => { rly1.writeSync(1) } },
+  { timer: 'chron', config: { expression: '45 5 * * 1-5' }, conditions: [{ type: 'weather', condition: (forcast) => { return forcast.toLowerCase().indexOf("overcast") === -1 } }], action: () => { rly1.writeSync(1) } },
+  { timer: 'chron', config: { expression: '* 7 * * 0,6' }, conditions: [], action: () => { console.log(rly1.writeSync(1)) } },
+  { timer: 'celestial', config: { when: 'sunrise', offset: 50 }, conditions: [], action: () => { console.log(rly1.writeSync(0)) } },
+  { timer: 'celestial', config: { when: 'sunset', offset: -30 }, conditions: [], action: () => { console.log(rly1.writeSync(1)) } },
+  { timer: 'chron', config: { expression: '30 22 * * 1-5' }, conditions: [], action: () => { console.log(rly1.writeSync(0)) } },
+  { timer: 'chron', config: { expression: '* 23 * * 0,6' }, conditions: [], action: () => { console.log(rly1.writeSync(0)) } },
 ];
 
 function NextEvent(timestamp, schedule){
@@ -32,7 +36,13 @@ function NextEvent(timestamp, schedule){
   schedule.forEach(element => {
     var scheduledTime = 0;
     switch(element.timer){
-      case 'time':
+      case 'date':
+        if(element.config.date){
+          var date = new Date(element.config.date);
+          scheduledTime = date.getTime();
+        }
+        break;
+      case 'timestamp':
         if(element.config.timestamp){
           scheduledTime = element.config.timestamp;
         }
@@ -42,17 +52,36 @@ function NextEvent(timestamp, schedule){
             currentDate: new Date(timestamp),
             iterator: true
           };
-        var interval = parser.parseExpression(element.config.expression, options);
-        scheduledTime = interval.NextEvent();
+        console.log(element.config.expression)
+        var interval = cronparser.parseExpression(element.config.expression, options);
+        scheduledTime = interval.next().value.getTime();
         break;
       case 'celestial':
+        if(element.config.when){
+          var date = new Date(timestamp)
+          switch(element.config.when){
+            case 'sunrise':
+              var solar = SunCalc.getTimes(date, process.env.latitude, process.env.longitude);
+
+              break;
+            case 'sunset':
+              break;
+            case 'sunrise':
+              break;
+            case 'sunset':
+              break;
+          }
+
+        }
+
         break;
     }
-    dT.push(scheduledTime-time);
+    dT.push(scheduledTime-timestamp);
   });
+  console.log(dT);
 }
 
-//NextEvent(time.time(), schedule);
+NextEvent(Date.now(), schedule);
 
 console.log("External Dependencies Found");
 
@@ -86,11 +115,6 @@ http.listen(port, function () {
     console.log("Listening on port "+ port);
 });
 
-
-var solar = SunCalc.getTimes(new Date(), process.env.latitude, process.env.longitude);
-var lunar = SunCalc.getMoonTimes(new Date(), process.env.latitude, process.env.longitude);
-console.log("Sunrise Today: ", solar.sunrise.toString());
-console.log("Sunset Today: ", solar.sunset.toString());
 
 //var j = schedule.scheduleJob('*/5 * * * * *', function(){
 //    console.log(new Date() + ' Repeat');
