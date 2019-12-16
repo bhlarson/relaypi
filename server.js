@@ -8,29 +8,22 @@ const util = require('util');
 
 var SunCalc = require('suncalc2');
 var mysql = require('mysql');
-var cronparser = require('cron-parser');wee
+var cronparser = require('cron-parser');
 
-
-/*
-const rly1 = new Gpio(26, 'out');
-const rly2 = new Gpio(20, 'out');
-const rly3 = new Gpio(21, 'out');
-
-rly1.writeSync(1);
-console.log('rly1=1');
-*/
 
 var schedule = [
-  { timer: 'date', config: { date: 'December 14, 2019 6:00:00' }, condition: ()=>{return True;}, action: () => { console.log("rly1.writeSync(1)") } },
-  { timer: 'date', config: { date: 'December 15, 2019 16:00:00' }, condition: ()=>{return True;}, action: () => { console.log("rly1.writeSync(1)") } },
+  { timer: 'date', config: { date: 'December 14, 2019 6:00:00' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(1)") } },
+  { timer: 'date', config: { date: 'December 15, 2019 16:00:00' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(1)") } },
   { timer: 'chron', config: { expression: '45 5 * * 1-5' }, condition: [{ type: 'weather', condition: (forcast) => { return forcast.toLowerCase().indexOf("overcast") === -1 } }], action: () => { rly1.writeSync(1) } },
-  { timer: 'chron', config: { expression: '* 7 * * 0,6' }, condition: ()=>{return True;}, action: () => { console.log("rly1.writeSync(1)") } },
-  { timer: 'celestial', config: { when: 'sunrise', offset: 50 * 60 }, condition: ()=>{return True;}, action: () => { console.log("rly1.writeSync(0)") } },
-  { timer: 'celestial', config: { when: 'sunset', offset: -30 * 60 }, condition: ()=>{return True;}, action: () => { console.log("rly1.writeSync(1)") } },
-  { timer: 'chron', config: { expression: '30 22 * * 1-5' }, condition: ()=>{return True;}, action: () => { console.log("rly1.writeSync(0)") } },
-  { timer: 'chron', config: { expression: '* 23 * * 0,6' }, condition: ()=>{return True;}, action: () => { console.log("rly1.writeSync(0)") } },
-  { timer: 'celestial', config: { when: 'moonrise', offset: 2*60*60 }, condition: ()=>{return True;}, action: () => { console.log("rly1.writeSync(1)") } },
-  { timer: 'celestial', config: { when: 'moonset', offset: 0 }, condition: ()=>{return True;}, action: () => { console.log("rly1.writeSync(0)") } },
+  { timer: 'chron', config: { expression: '* 7 * * 0,6' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(1)") } },
+  { timer: 'celestial', config: { when: 'sunrise', offset: 50 * 60 }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(0)") } },
+  { timer: 'celestial', config: { when: 'sunset', offset: -30 * 60 }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(1)") } },
+  { timer: 'chron', config: { expression: '30 22 * * 1-5' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(0)") } },
+  { timer: 'chron', config: { expression: '* 23 * * 0,6' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(0)") } },
+  { timer: 'celestial', config: { when: 'moonrise', offset: 2*60*60 }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(1)") } },
+  { timer: 'celestial', config: { when: 'moonset', offset: 0 }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(0)") } },
+  { timer: 'chron', config: { expression: '0/10 * * * *' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(1)") } },
+  { timer: 'chron', config: { expression: '5/10 * * * *' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(0)") } },
 ];
 
 function NextEvent(timestamp, schedule) {
@@ -64,7 +57,6 @@ function NextEvent(timestamp, schedule) {
           currentDate: new Date(timestamp),
           iterator: true
         };
-        console.log(element.config.expression)
         var interval = cronparser.parseExpression(element.config.expression, options);
         scheduledTime = interval.next().value.getTime();
         break;
@@ -109,22 +101,22 @@ function NextEvent(timestamp, schedule) {
     }
     var howLong = scheduledTime - timestamp;
     if(howLong >= 0){
-      events.push({dt:scheduledTime - timestamp, event:element});
+      events.push({ts:scheduledTime, event:element});
     }
   });
-  events.sort((a, b)=>(a.dt > b.dt) ? 1 : -1);
+  events.sort((a, b)=>(a.ts > b.ts) ? 1 : -1); // Sort ascending
     
   // Fire any timed-out events and remove them from the list
-  var fireEvents = True
+  var fireEvents = true
   while (fireEvents) {
-    var now = new Date().getDate() - timestamp;
-    if (now >= events.dt) {
+    var now = new Date().getDate();
+    if (now >= events.ts) {
       if (events[i].element().condition())
         events[i].element().action();
-      events.shift()
+      events.shift() // Remove completed event from list
     }
     else {
-      fireEvents = False;
+      fireEvents = false;
     }
   }
   return events
@@ -133,18 +125,15 @@ function NextEvent(timestamp, schedule) {
 async function ProcessEvents(schedule) {
   let promise = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-  while(True){
-    var tsNow = Date.now()
-    var events = NextEvent(tsNow, schedule);
+  var ts = Date.now();
+  while(true){
+    var events = NextEvent(ts, schedule);
 
     // Remove time needed to process events
     // This can skip cyclic events like sunrise/sunset.  Modify so events are not skipped.
-    var dEvent = Date.now()-tsNow;
-    await promise(events[0].dt-dEvent); 
-
+    await promise(events[0].ts- Date.now()); 
   }
-
-  console.log("External Dependencies Found");
+}
 
 //const rly1 = new Gpio(26, 'out');
 //const rly2 = new Gpio(20, 'out');
@@ -176,33 +165,7 @@ http.listen(port, function () {
   console.log("Listening on port " + port);
 });
 
-
-//var j = schedule.scheduleJob('*/5 * * * * *', function(){
-//    console.log(new Date() + ' Repeat');
-
-//rly1.read()
-//    .then(value => rly1.write(value ^ 1))
-//    .catch(err => console.log(err));   
-//  }
-//);
-
-//var k = schedule.scheduleJob('*/10 * * * * *', function(){
-//    console.log(new Date() + ' Repeat');
-
-//rly2.read()
-//    .then(value => rly2.write(value ^ 1))
-//    .catch(err => console.log(err));   
-//  }
-//);
-
-//var l = schedule.scheduleJob('*/20 * * * * *', function(){
-//    console.log(new Date() + ' Repeat');
-
-//rly3.read()
-//    .then(value => rly3.write(value ^ 1))
-//    .catch(err => console.log(err));   
-//  }
-//);
-
 module.exports = app;
-console.log("Created RelayPi server")
+console.log("RelayPi running schedule events");
+
+ProcessEvents(schedule);
