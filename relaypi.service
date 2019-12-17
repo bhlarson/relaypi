@@ -1,0 +1,30 @@
+# Install as /etc/systemd/system/relaypi.service
+#$ sudo systemctl daemon-reload # reload service
+#$ sudo systemctl enable relaypi.service
+#$ sudo systemctl restart relaypi.service -- restart process
+#$ sudo systemctl stop relaypi.service
+#$ sudo systemctl start relaypi.service
+#$ sudo systemctl restart relaypi.service
+#$ sudo systemctl disable relaypi.service
+
+#$ ps aux -- list running processes
+#$ ps -ef | grep relaypi
+# Output to /var/log/syslog
+#$ tail -f /var/log/syslog
+
+[Unit]
+Description=Node.js Curtain Control Server
+#Requires=After=mysql.service       # Requires the mysql service to run first
+
+[Service]
+ExecStart=/usr/bin/nodejs /home/pi/git/relaypi/server.js
+WorkingDirectory=/home/pi/git/relaypi
+Restart=on-failure
+SyslogIdentifier=relaypi
+User=pi
+Group=pi
+Environment=PATH=/home/pi/git/relaypi
+Environment=NODE_ENV=production PORT=4474
+
+[Install]
+WantedBy=multi-user.target
