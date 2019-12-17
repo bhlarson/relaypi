@@ -16,18 +16,12 @@ const rly2 = new Gpio(20, 'out');
 const rly3 = new Gpio(21, 'out');
 
 var schedule = [
-  { timer: 'date', config: { date: 'December 14, 2019 6:00:00' }, condition: ()=>{return true;}, action: () => { rly1.writeSync(1) } },
-  { timer: 'date', config: { date: 'December 15, 2019 16:00:00' }, condition: ()=>{return true;}, action: () => { rly1.writeSync(1) } },
-  { timer: 'chron', config: { expression: '45 5 * * 1-5' }, condition: [{ type: 'weather', condition: (forcast) => { return forcast.toLowerCase().indexOf("overcast") === -1 } }], action: () => { rly1.writeSync(1) } },
+  { timer: 'chron', config: { expression: '45 5 * * 1-5' }, condition: ()=>{return true;}, action: () => { rly1.writeSync(1) } },
   { timer: 'chron', config: { expression: '* 7 * * 0,6' }, condition: ()=>{return true;}, action: () => { rly1.writeSync(1) } },
   { timer: 'celestial', config: { when: 'sunrise', offset: 50 * 60 }, condition: ()=>{return true;}, action: () => { rly1.writeSync(0) } },
   { timer: 'celestial', config: { when: 'sunset', offset: -30 * 60 }, condition: ()=>{return true;}, action: () => { rly1.writeSync(1) } },
-  { timer: 'chron', config: { expression: '30 22 * * 1-5' }, condition: ()=>{return true;}, action: () => { rly1.writeSync(0) } },
-  { timer: 'chron', config: { expression: '* 23 * * 0,6' }, condition: ()=>{return true;}, action: () => { rly1.writeSync(0) } },
-  { timer: 'celestial', config: { when: 'moonrise', offset: 2*60*60 }, condition: ()=>{return true;}, action: () => { rly1.writeSync(1) } },
-  { timer: 'celestial', config: { when: 'moonset', offset: 0 }, condition: ()=>{return true;}, action: () => { rly1.writeSync(0) } },
-  { timer: 'chron', config: { expression: '0,10,20,30,40,50 * * * * *' }, condition: ()=>{return true;}, action: () => { rly1.writeSync(1) } },
-  { timer: 'chron', config: { expression: '5,15,25,35,45,55 * * * * *' }, condition: ()=>{return true;}, action: () => { rly1.writeSync(0) } },
+  { timer: 'chron', config: { expression: '03 23 * * 1-5' }, condition: ()=>{return true;}, action: () => { rly1.writeSync(0) } },
+  { timer: 'chron', config: { expression: '30 23 * * 0,6' }, condition: ()=>{return true;}, action: () => { rly1.writeSync(0) } },
 ];
 
 function NextEvent(timestamp, schedule) {
