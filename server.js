@@ -22,8 +22,8 @@ var schedule = [
   { timer: 'chron', config: { expression: '* 23 * * 0,6' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(0)") } },
   { timer: 'celestial', config: { when: 'moonrise', offset: 2*60*60 }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(1)") } },
   { timer: 'celestial', config: { when: 'moonset', offset: 0 }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(0)") } },
-  { timer: 'chron', config: { expression: '0/10 * * * * *' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(1)") } },
-  { timer: 'chron', config: { expression: '5/10 * * * * *' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(0)") } },
+  { timer: 'chron', config: { expression: '0,10,20,30,40,50 * * * * *' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(1)") } },
+  { timer: 'chron', config: { expression: '5,15,25,35,45,55 * * * * *' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(0)") } },
 ];
 
 function NextEvent(timestamp, schedule) {
@@ -106,19 +106,6 @@ function NextEvent(timestamp, schedule) {
   });
   events.sort((a, b)=>(a.ts > b.ts) ? 1 : -1); // Sort ascending
     
-  // Fire any timed-out events and remove them from the list
-  var fireEvents = true
-  while (fireEvents) {
-    var now = Date.now();
-    if (now >= events[0].ts) {
-      if (events[0].event.condition())
-        events[0].event.action();
-      events.shift() // Remove completed event from list
-    }
-    else {
-      fireEvents = false;
-    }
-  }
   return events
 }
 
@@ -126,12 +113,29 @@ async function ProcessEvents(schedule) {
   let promise = ms => new Promise(resolve => setTimeout(resolve, ms));
 
   var ts = Date.now();
-  while(true){
-    var events = NextEvent(ts, schedule);
+  var events = NextEvent(ts, schedule);
 
-    // Remove time needed to process events
-    // This can skip cyclic events like sunrise/sunset.  Modify so events are not skipped.
-    await promise(events[0].ts- Date.now()); 
+  while(true){
+    // Preform events that have occurred
+    // Fire any timed-out events and remove them from the list
+    var now;
+    var fireEvents = true
+    while (fireEvents) {
+      now = Date.now();
+      if (now >= events[0].ts) {
+        if (events[0].event.condition())
+          events[0].event.action();
+        events.shift() // Remove completed event from list
+      }
+      else {
+        fireEvents = false;
+      }
+    }
+    ts = now;  // move timestamp up to last processed event
+    events = NextEvent(ts, schedule);
+
+    console.log(events[0].ts-ts + ' ' + ts );
+    await promise(events[0].ts-ts); 
   }
 }
 
