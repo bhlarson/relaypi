@@ -22,8 +22,8 @@ var schedule = [
   { timer: 'chron', config: { expression: '* 23 * * 0,6' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(0)") } },
   { timer: 'celestial', config: { when: 'moonrise', offset: 2*60*60 }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(1)") } },
   { timer: 'celestial', config: { when: 'moonset', offset: 0 }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(0)") } },
-  { timer: 'chron', config: { expression: '0/10 * * * *' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(1)") } },
-  { timer: 'chron', config: { expression: '5/10 * * * *' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(0)") } },
+  { timer: 'chron', config: { expression: '0/10 * * * * *' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(1)") } },
+  { timer: 'chron', config: { expression: '5/10 * * * * *' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(0)") } },
 ];
 
 function NextEvent(timestamp, schedule) {
@@ -109,10 +109,10 @@ function NextEvent(timestamp, schedule) {
   // Fire any timed-out events and remove them from the list
   var fireEvents = true
   while (fireEvents) {
-    var now = new Date().getDate();
-    if (now >= events.ts) {
-      if (events[i].element().condition())
-        events[i].element().action();
+    var now = Date.now();
+    if (now >= events[0].ts) {
+      if (events[0].event.condition())
+        events[0].event.action();
       events.shift() // Remove completed event from list
     }
     else {
