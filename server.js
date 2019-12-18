@@ -22,8 +22,8 @@ var schedule = [
   { timer: 'celestial', config: { when: 'sunset', offset: -30 * 60 }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(1)");rly1.writeSync(1) } },
   { timer: 'chron', config: { expression: '03 23 * * 1-5' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(0)");rly1.writeSync(0) } },
   { timer: 'chron', config: { expression: '30 23 * * 0,6' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(0)");rly1.writeSync(0) } },
-  { timer: 'chron', config: { expression: '0,10,20,30,40,50 * * * * *' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(1)");rly1.writeSync(1) } },
-  { timer: 'chron', config: { expression: '5,15,25,35,45,55 * * * * *' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(0)");rly1.writeSync(0) } },
+  //{ timer: 'chron', config: { expression: '0,10,20,30,40,50 * * * * *' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(1)");rly1.writeSync(1) } },
+  //{ timer: 'chron', config: { expression: '5,15,25,35,45,55 * * * * *' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(0)");rly1.writeSync(0) } },
 ];
 
 function NextEvent(timestamp, schedule) {
