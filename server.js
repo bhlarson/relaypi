@@ -16,12 +16,14 @@ const rly2 = new Gpio(20, 'out');
 const rly3 = new Gpio(21, 'out');
 
 var schedule = [
-  { timer: 'chron', config: { expression: '45 5 * * 1-5' }, condition: ()=>{return true;}, action: () => { rly1.writeSync(1) } },
-  { timer: 'chron', config: { expression: '* 7 * * 0,6' }, condition: ()=>{return true;}, action: () => { rly1.writeSync(1) } },
-  { timer: 'celestial', config: { when: 'sunrise', offset: 50 * 60 }, condition: ()=>{return true;}, action: () => { rly1.writeSync(0) } },
-  { timer: 'celestial', config: { when: 'sunset', offset: -30 * 60 }, condition: ()=>{return true;}, action: () => { rly1.writeSync(1) } },
-  { timer: 'chron', config: { expression: '03 23 * * 1-5' }, condition: ()=>{return true;}, action: () => { rly1.writeSync(0) } },
-  { timer: 'chron', config: { expression: '30 23 * * 0,6' }, condition: ()=>{return true;}, action: () => { rly1.writeSync(0) } },
+  { timer: 'chron', config: { expression: '45 5 * * 1-5' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(1)");rly1.writeSync(1) } },
+  { timer: 'chron', config: { expression: '* 7 * * 0,6' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(1)");rly1.writeSync(1) } },
+  { timer: 'celestial', config: { when: 'sunrise', offset: 50 * 60 }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(0)");rly1.writeSync(0) } },
+  { timer: 'celestial', config: { when: 'sunset', offset: -30 * 60 }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(1)");rly1.writeSync(1) } },
+  { timer: 'chron', config: { expression: '03 23 * * 1-5' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(0)");rly1.writeSync(0) } },
+  { timer: 'chron', config: { expression: '30 23 * * 0,6' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(0)");rly1.writeSync(0) } },
+  { timer: 'chron', config: { expression: '0,10,20,30,40,50 * * * * *' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(1)");rly1.writeSync(1) } },
+  { timer: 'chron', config: { expression: '5,15,25,35,45,55 * * * * *' }, condition: ()=>{return true;}, action: () => { console.log("rly1.writeSync(0)");rly1.writeSync(0) } },
 ];
 
 function NextEvent(timestamp, schedule) {
@@ -99,7 +101,7 @@ function NextEvent(timestamp, schedule) {
     }
     var howLong = scheduledTime - timestamp;
     if(howLong >= 0){
-      events.push({ts:scheduledTime, event:element});
+      events.push({ts:scheduledTime, when:new Date(scheduledTime), event:element});
     }
   });
   events.sort((a, b)=>(a.ts > b.ts) ? 1 : -1); // Sort ascending
@@ -131,7 +133,7 @@ async function ProcessEvents(schedule) {
     }
     ts = now;  // move timestamp up to last processed event
     events = NextEvent(ts, schedule);
-
+    console.log(JSON.stringify(events,null, 4));
     console.log(events[0].ts-ts + ' ' + ts );
     await promise(events[0].ts-ts); 
   }
