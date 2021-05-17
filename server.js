@@ -150,7 +150,7 @@ var pool = mysql.createPool({
 
 console.log("mysql.createPool exists=" + (typeof pool !== 'undefined'));
 
-var port = process.env.PORT || 1337;
+var port = process.env.nodeport || 1337;
 app.use(express.static('public'));
 
 app.get('/', function (req, res) {
