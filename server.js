@@ -7,7 +7,6 @@ var http = require('http').Server(app);
 const util = require('util');
 
 var SunCalc = require('suncalc2');
-var mysql = require('mysql');
 var cronparser = require('cron-parser');
 const Gpio = require('onoff').Gpio;
 
@@ -16,14 +15,14 @@ const rly2 = new Gpio(20, 'out');
 const rly3 = new Gpio(21, 'out');
 
 var schedule = [
-  //{ timer: 'chron', config: { expression: '45 5 * * 1-5' }, condition: ()=>{return true;}, action: () => { console.log("rly2.writeSync(1)");rly2.writeSync(1) } },
-  //{ timer: 'chron', config: { expression: '* 7 * * 0,6' }, condition: ()=>{return true;}, action: () => { console.log("rly2.writeSync(1)");rly2.writeSync(1) } },
-  //{ timer: 'celestial', config: { when: 'sunrise', offset: 50 * 60 }, condition: ()=>{return true;}, action: () => { console.log("rly2.writeSync(0)");rly2.writeSync(0) } },
-  //{ timer: 'celestial', config: { when: 'sunset', offset: -30 * 60 }, condition: ()=>{return true;}, action: () => { console.log("rly2.writeSync(1)");rly2.writeSync(1) } },
-  //{ timer: 'chron', config: { expression: '03 23 * * 1-5' }, condition: ()=>{return true;}, action: () => { console.log("rly2.writeSync(0)");rly2.writeSync(0) } },
-  //{ timer: 'chron', config: { expression: '30 23 * * 0,6' }, condition: ()=>{return true;}, action: () => { console.log("rly2.writeSync(0)");rly2.writeSync(0) } },
-  { timer: 'chron', config: { expression: '0,10,20,30,40,50 * * * * *' }, condition: ()=>{return true;}, action: () => { console.log("rly2.writeSync(1)");rly2.writeSync(1) } },
-  { timer: 'chron', config: { expression: '5,15,25,35,45,55 * * * * *' }, condition: ()=>{return true;}, action: () => { console.log("rly2.writeSync(0)");rly2.writeSync(0) } },
+  { timer: 'chron', config: { expression: '20 5 * * 1-5' }, condition: ()=>{return true;}, action: () => { console.log("rly2.writeSync(1)");rly2.writeSync(1) } },
+  { timer: 'chron', config: { expression: '* 7 * * 0,6' }, condition: ()=>{return true;}, action: () => { console.log("rly2.writeSync(1)");rly2.writeSync(1) } },
+  { timer: 'celestial', config: { when: 'sunrise', offset: 50 * 60 }, condition: ()=>{return true;}, action: () => { console.log("rly2.writeSync(0)");rly2.writeSync(0) } },
+  { timer: 'celestial', config: { when: 'sunset', offset: -30 * 60 }, condition: ()=>{return true;}, action: () => { console.log("rly2.writeSync(1)");rly2.writeSync(1) } },
+  { timer: 'chron', config: { expression: '03 23 * * 1-5' }, condition: ()=>{return true;}, action: () => { console.log("rly2.writeSync(0)");rly2.writeSync(0) } },
+  { timer: 'chron', config: { expression: '30 23 * * 0,6' }, condition: ()=>{return true;}, action: () => { console.log("rly2.writeSync(0)");rly2.writeSync(0) } },
+  //{ timer: 'chron', config: { expression: '0,10,20,30,40,50 * * * * *' }, condition: ()=>{return true;}, action: () => { console.log("rly2.writeSync(1)");rly2.writeSync(1) } },
+  //{ timer: 'chron', config: { expression: '5,15,25,35,45,55 * * * * *' }, condition: ()=>{return true;}, action: () => { console.log("rly2.writeSync(0)");rly2.writeSync(0) } },
 ];
 
 function NextEvent(timestamp, schedule) {
@@ -139,6 +138,7 @@ async function ProcessEvents(schedule) {
   }
 }
 
+<<<<<<< HEAD
 var pool = mysql.createPool({
   connectionLimit: 10,
   host: process.env.dbhost,
@@ -151,10 +151,19 @@ var pool = mysql.createPool({
 console.log("mysql.createPool exists=" + (typeof pool !== 'undefined'));
 
 var port = process.env.nodeport || 1337;
+=======
+var port = process.env.PORT || 1337;
+>>>>>>> 22ece89b7539019052d285c414a5d19f7c7ea85f
 app.use(express.static('public'));
 
-app.get('/', function (req, res) {
-  res.sendFile('index.html')
+app.put('/on', function (req, res) {
+  console.log('/off')
+  rly2.writeSync(1)
+});
+
+app.put('/off', function (req, res) {
+  console.log('/off')
+  rly2.writeSync(0)
 });
 
 
