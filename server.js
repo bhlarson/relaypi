@@ -138,7 +138,6 @@ async function ProcessEvents(schedule) {
   }
 }
 
-<<<<<<< HEAD
 var pool = mysql.createPool({
   connectionLimit: 10,
   host: process.env.dbhost,
@@ -151,9 +150,6 @@ var pool = mysql.createPool({
 console.log("mysql.createPool exists=" + (typeof pool !== 'undefined'));
 
 var port = process.env.nodeport || 1337;
-=======
-var port = process.env.PORT || 1337;
->>>>>>> 22ece89b7539019052d285c414a5d19f7c7ea85f
 app.use(express.static('public'));
 
 app.put('/on', function (req, res) {
